@@ -7,6 +7,7 @@ import (
 	"go-template/internal/shared/infrastructure/postgres"
 	"go-template/internal/shared/interfaces/http"
 	"go-template/internal/shared/middleware"
+	"go-template/internal/user"
 	"log"
 
 	_ "go-template/docs"
@@ -48,6 +49,7 @@ func main() {
 	logger := logger.NewLogrusLogger("./logs")
 
 	authModule := auth.NewModule(db, logger)
+	userModule := user.NewModule(db, authModule)
 
 	server := http.NewServer()
 
@@ -57,6 +59,7 @@ func main() {
 	)
 
 	server.AddModules(
+		userModule,
 		authModule,
 	)
 
