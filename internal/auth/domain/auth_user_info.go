@@ -1,4 +1,4 @@
-package jwt
+package domain
 
 import (
 	"go-template/pkg/apperrors"
@@ -6,23 +6,23 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-type JWTUserInfo struct {
+type AuthUserInfo struct {
 	ID       int64
 	Email    string
 	Username string
 	Role     string
 }
 
-func (jwtUserInfo JWTUserInfo) GenerateClaims() jwt.MapClaims {
+func (authUserInfo AuthUserInfo) GenerateClaims() jwt.MapClaims {
 	return jwt.MapClaims{
-		"id":       jwtUserInfo.ID,
-		"email":    jwtUserInfo.Email,
-		"username": jwtUserInfo.Username,
-		"role":     jwtUserInfo.Role,
+		"id":       authUserInfo.ID,
+		"email":    authUserInfo.Email,
+		"username": authUserInfo.Username,
+		"role":     authUserInfo.Role,
 	}
 }
 
-func FromClaims(claims jwt.MapClaims) (*JWTUserInfo, error) {
+func FromClaims(claims jwt.MapClaims) (*AuthUserInfo, error) {
 	id, ok := claims["id"].(float64)
 	if !ok {
 		return nil, apperrors.NewInvalidClaims("id")
@@ -34,7 +34,7 @@ func FromClaims(claims jwt.MapClaims) (*JWTUserInfo, error) {
 		}
 	}
 
-	return &JWTUserInfo{
+	return &AuthUserInfo{
 		ID:       int64(id),
 		Email:    claims["email"].(string),
 		Username: claims["username"].(string),
@@ -42,10 +42,10 @@ func FromClaims(claims jwt.MapClaims) (*JWTUserInfo, error) {
 	}, nil
 }
 
-func NewJWTUserInfo(
+func NewAuthUserInfo(
 	id int64, email string, username string, role string,
-) JWTUserInfo {
-	return JWTUserInfo{
+) AuthUserInfo {
+	return AuthUserInfo{
 		ID:       id,
 		Email:    email,
 		Username: username,

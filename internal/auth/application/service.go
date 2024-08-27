@@ -53,7 +53,7 @@ func (s *authApplicationService) Login(ctx context.Context, email, username, pas
 	}
 
 	// 2. generate jwt token
-	jwtUserInfo := jwt.NewJWTUserInfo(user.ID, user.Email, user.Username, user.Role)
+	jwtUserInfo := domain.NewAuthUserInfo(user.ID, user.Email, user.Username, user.Role)
 
 	token, err := s.jwtService.GenerateToken(jwtUserInfo)
 	if err != nil {
