@@ -1,10 +1,13 @@
 package config
 
+import "go-template/internal/shared/infrastructure/redis"
+
 type AppConfig struct {
 	Name        string
 	Environment string
 	Server      ServerConfig
 	Database    DatabaseConfig
+	Redis       redis.RedisConfig
 }
 
 type ServerConfig struct {

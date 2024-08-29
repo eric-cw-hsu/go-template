@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"go-template/pkg/apperrors"
 
 	"github.com/golang-jwt/jwt"
@@ -20,6 +21,14 @@ func (authUserInfo AuthUserInfo) GenerateClaims() jwt.MapClaims {
 		"username": authUserInfo.Username,
 		"role":     authUserInfo.Role,
 	}
+}
+
+func (authUserInfo AuthUserInfo) MarshalBinary() ([]byte, error) {
+	return json.Marshal(authUserInfo)
+}
+
+func (authUserInfo *AuthUserInfo) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, authUserInfo)
 }
 
 func FromClaims(claims jwt.MapClaims) (*AuthUserInfo, error) {

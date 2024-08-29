@@ -6,6 +6,7 @@ import (
 	"go-template/internal/auth"
 	"go-template/internal/shared/infrastructure/logger"
 	"go-template/internal/shared/infrastructure/postgres"
+	"go-template/internal/shared/infrastructure/redis"
 	"go-template/internal/shared/interfaces/http"
 	"go-template/internal/shared/middleware"
 	"log"
@@ -32,9 +33,13 @@ func main() {
 	db := initDatabase()
 	defer db.Close()
 
+	redisClient := redis.NewRedisClient(
+		&config.App.Redis,
+	)
+
 	logger := logger.NewLogrusLogger("./logs")
 
-	authModule := auth.NewModule(db, logger)
+	authModule := auth.NewModule(db, redisClient, logger)
 
 	server := http.NewServer()
 

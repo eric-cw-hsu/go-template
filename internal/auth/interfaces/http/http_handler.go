@@ -67,15 +67,53 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// ---- Login with JWT ----
 	user, token, err := h.authService.Login(c.Request.Context(), input.Email, input.Username, input.Password)
 	if err != nil {
 		appErr := err.(*apperrors.Error)
 		c.JSON(appErr.Status(), gin.H{"error": appErr.Message})
 		return
 	}
+	// ---- [END] Login with JWT ----
+
+	// ---- Login with Cookie Session ----
+	user, sessionId, err := h.authService.Login(c.Request.Context(), input.Email, input.Username, input.Password)
+	if err != nil {
+		appErr := err.(*apperrors.Error)
+		c.JSON(appErr.Status(), gin.H{"error": appErr.Message})
+		return
+	}
+
+	// set cookie
+	c.SetCookie("session_id", sessionId, 60*30, "/", c.Request.URL.Hostname(), false, true)
+	// ---- [END] Login with Cookie Session ----
 
 	c.JSON(http.StatusOK, gin.H{
 		"user":  dto.NewUserResponse(user),
 		"token": token,
 	})
+}
+
+// @Summary Logout
+// @Description Logout from the application
+// @Tags auth
+// @Security ApiKeyAuth
+// @Success 204
+// @Router /api/v1/logout [post]
+func (h *AuthHandler) Logout(c *gin.Context) {
+	sessionId, err := c.Cookie("session_id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "session_id cookie not found"})
+		return
+	}
+
+	err = h.authService.Logout(c.Request.Context(), sessionId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.SetCookie("session_id", "", -1, "/", c.Request.URL.Hostname(), false, true)
+
+	c.JSON(http.StatusNoContent, nil)
 }
