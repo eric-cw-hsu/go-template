@@ -2,8 +2,7 @@ package domain
 
 import (
 	"context"
-	"go-template/internal/shared/infrastructure/logger"
-	"go-template/pkg/apperrors"
+	"errors"
 )
 
 type AuthService interface {
@@ -14,11 +13,10 @@ type AuthService interface {
 
 type authService struct {
 	repository AuthRepository
-	logger     logger.Logger
 }
 
-func NewAuthService(repo AuthRepository, logger logger.Logger) AuthService {
-	return &authService{repository: repo, logger: logger}
+func NewAuthService(repo AuthRepository) AuthService {
+	return &authService{repository: repo}
 }
 
 func (s *authService) CreateUser(ctx context.Context, email, username, password string) (*AuthUser, error) {
@@ -29,14 +27,12 @@ func (s *authService) CreateUser(ctx context.Context, email, username, password 
 
 	err = s.repository.Create(ctx, user)
 	if err != nil {
-		s.logger.Error(err)
 		return nil, err
 	}
 
 	user, err = s.repository.FindUserByEmail(ctx, email)
 	if err != nil {
-		s.logger.Error(err)
-		return nil, apperrors.NewInternal()
+		return nil, errors.New("error creating user")
 	}
 
 	return user, nil
@@ -51,14 +47,14 @@ func (s *authService) AuthenticateUser(ctx context.Context, email, username, pas
 	} else if username != "" {
 		user, err = s.repository.FindUserByUsername(ctx, username)
 	} else {
-		return nil, apperrors.NewUnprocessableEntity("either email or username must be provided")
+		return nil, errors.New("email or username must be provided")
 	}
 	if err != nil {
-		return nil, apperrors.NewInternal()
+		return nil, err
 	}
 
 	if !VerifyPassword(user, password) {
-		return nil, apperrors.NewAuthorization("invalid credentials")
+		return nil, errors.New("invalid password")
 	}
 
 	return user, nil

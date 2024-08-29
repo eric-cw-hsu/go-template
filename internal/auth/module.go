@@ -39,14 +39,14 @@ func NewModule(db *sql.DB, redis *redis.Client, logger logger.Logger) *Module {
 
 	// --- Cookie Session Service ---
 	cookieSessionConfig := &cookiesession.CookieSessionConfig{
-		MaxAge:   authConfig.Auth.MaxAge,
-		Secure:   authConfig.Auth.Secure,
-		HttpOnly: authConfig.Auth.HttpOnly,
+		MaxAge:   authConfig.Auth.CookieSession.MaxAge,
+		Secure:   authConfig.Auth.CookieSession.Secure,
+		HttpOnly: authConfig.Auth.CookieSession.HttpOnly,
 	}
-	cookieSessionService := cookiesession.NewCookieSessionService(redis, cookieSessionConfig, logger)
+	cookieSessionService := cookiesession.NewCookieSessionService(redis, cookieSessionConfig)
 
 	authRepo := infrastructure.NewPostgresAuthRepository(db)
-	authDomainService := domain.NewAuthService(authRepo, logger)
+	authDomainService := domain.NewAuthService(authRepo)
 	authAppService := application.NewAuthApplicationService(authDomainService, jwtService, cookieSessionService, logger)
 	authHandler := http.NewAuthHandler(authAppService)
 

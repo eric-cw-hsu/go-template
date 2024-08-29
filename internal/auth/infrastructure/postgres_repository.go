@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"go-template/internal/auth/domain"
-	"go-template/pkg/apperrors"
 
 	"github.com/lib/pq"
 )
@@ -23,8 +22,7 @@ func (r *postgresAuthRepository) Create(ctx context.Context, user *domain.AuthUs
 	query := `INSERT INTO users (email, username, password, created_at, updated_at, last_login_at) VALUES ($1, $2, $3, $4, $5, $6)`
 	_, err := r.db.ExecContext(ctx, query, user.Email, user.Username, user.PasswordHash, user.CreatedAt, user.UpdatedAt, user.LastLoginAt)
 	if err != nil {
-		fmt.Println(err)
-		return apperrors.NewInternal()
+		return errors.New(fmt.Sprintf("[PostgresAuthRepository.Create] error creating user: %v", err))
 	}
 
 	return nil
@@ -51,7 +49,7 @@ func (r *postgresAuthRepository) findUser(ctx context.Context, query string, arg
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, domain.ErrUserNotFound
+			return nil, errors.New("user not found")
 		}
 		return nil, err
 	}
@@ -76,7 +74,7 @@ func (r *postgresAuthRepository) Update(ctx context.Context, user *domain.AuthUs
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code {
 			case "23505":
-				return domain.ErrDuplicateEntry
+				return errors.New(fmt.Sprint("[PostgresAuthRepository.Update] duplicate entry: ", pqErr.Message))
 			}
 		}
 		return err

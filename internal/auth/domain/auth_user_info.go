@@ -2,7 +2,7 @@ package domain
 
 import (
 	"encoding/json"
-	"go-template/pkg/apperrors"
+	"errors"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -34,12 +34,12 @@ func (authUserInfo *AuthUserInfo) UnmarshalBinary(data []byte) error {
 func FromClaims(claims jwt.MapClaims) (*AuthUserInfo, error) {
 	id, ok := claims["id"].(float64)
 	if !ok {
-		return nil, apperrors.NewInvalidClaims("id")
+		return nil, errors.New("missing key in claims")
 	}
 
 	for _, key := range []string{"email", "username", "role"} {
 		if _, ok := claims[key]; !ok {
-			return nil, apperrors.NewInvalidClaims(key)
+			return nil, errors.New("missing key in claims")
 		}
 	}
 

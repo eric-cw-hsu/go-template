@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"go-template/internal/auth/domain"
-	"go-template/pkg/apperrors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -29,16 +28,15 @@ func (service *JWTService) Authenticate(tokenString string) (*domain.AuthUserInf
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return &domain.AuthUserInfo{}, apperrors.NewAuthorization("invalid token claims")
+		return &domain.AuthUserInfo{}, err
 	}
 
 	userInfo, err := domain.FromClaims(claims)
 	if err != nil {
-		return &domain.AuthUserInfo{}, apperrors.NewAuthorization("failed to parse claims")
+		return &domain.AuthUserInfo{}, err
 	}
 
 	return userInfo, nil
-
 }
 
 func (service *JWTService) GenerateToken(userInfo domain.AuthUserInfo) (string, error) {
@@ -49,7 +47,7 @@ func (service *JWTService) GenerateToken(userInfo domain.AuthUserInfo) (string, 
 
 	signedToken, err := token.SignedString([]byte(service.jwtConfig.JWTSecret))
 	if err != nil {
-		return "", apperrors.NewAuthorization("could not sign token")
+		return "", err
 	}
 
 	return signedToken, nil
