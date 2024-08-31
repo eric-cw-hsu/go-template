@@ -21,29 +21,16 @@ definitions:
     type: object
   go-template_internal_auth_interfaces_dto.UserResponse:
     properties:
-      created_at:
-        type: string
       email:
         type: string
       id:
         type: integer
-      updated_at:
+      last_login_at:
         type: string
       username:
         type: string
     type: object
-  go-template_internal_user_interfaces_dto.UserResponse:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: integer
-      updated_at:
-        type: string
-    type: object
-  internal_auth_interfaces.RegisterInput:
+  internal_auth_interfaces_http.RegisterInput:
     properties:
       email:
         example: user@example.com
@@ -83,6 +70,17 @@ paths:
       summary: Login
       tags:
       - auth
+  /api/v1/logout:
+    post:
+      description: Logout from the application
+      responses:
+        "204":
+          description: No Content
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - auth
   /api/v1/register:
     post:
       consumes:
@@ -94,7 +92,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_auth_interfaces.RegisterInput'
+          $ref: '#/definitions/internal_auth_interfaces_http.RegisterInput'
       produces:
       - application/json
       responses:
@@ -105,29 +103,6 @@ paths:
       summary: Register a new user
       tags:
       - auth
-  /api/v1/users/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get user by ID
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/go-template_internal_user_interfaces_dto.UserResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Get user by ID
-      tags:
-      - user
 securityDefinitions:
   ApiKeyAuth:
     description: Authorization token

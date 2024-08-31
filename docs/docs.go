@@ -49,6 +49,25 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Logout from the application",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/api/v1/register": {
             "post": {
                 "description": "Create a new user account",
@@ -69,7 +88,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_auth_interfaces.RegisterInput"
+                            "$ref": "#/definitions/internal_auth_interfaces_http.RegisterInput"
                         }
                     }
                 ],
@@ -78,43 +97,6 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/go-template_internal_auth_interfaces_dto.UserResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/users/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get user by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get user by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/go-template_internal_user_interfaces_dto.UserResponse"
                         }
                     }
                 }
@@ -153,16 +135,13 @@ const docTemplate = `{
         "go-template_internal_auth_interfaces_dto.UserResponse": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "last_login_at": {
                     "type": "string"
                 },
                 "username": {
@@ -170,24 +149,7 @@ const docTemplate = `{
                 }
             }
         },
-        "go-template_internal_user_interfaces_dto.UserResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth_interfaces.RegisterInput": {
+        "internal_auth_interfaces_http.RegisterInput": {
             "type": "object",
             "properties": {
                 "email": {
